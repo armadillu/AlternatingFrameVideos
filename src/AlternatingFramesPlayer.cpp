@@ -9,24 +9,25 @@
 #include "AlternatingFramesPlayer.h"
 
 
-
 AlternatingFramesPlayer::AlternatingFramesPlayer(){
 
 	cout << "loading playslist and settings" << endl;
 	vector<string> fileNames;
+	vector<int> offs;
 
 	ofxXmlSettings pl;
 	pl.loadFile("playlist.xml");
 	int numV = pl.getNumTags("video");
 	for(int i = 0 ; i < numV; i++){
 		string file = pl.getValue("video", "NULL", i);
+		int off = pl.getValue("offset", 0, i);
 		cout << "playlist.xml includes " << file << endl;
 		fileNames.push_back(file);
+		offs.push_back(off);
 	}
 
-	setup(fileNames);
+	setup(fileNames, offs);
 	loadSettings();
-
 }
 
 AlternatingFramesPlayer::~AlternatingFramesPlayer(){
@@ -60,9 +61,17 @@ void AlternatingFramesPlayer::saveSettings(){
 	settings.saveFile("settings.xml");
 }
 
-void AlternatingFramesPlayer::setup(vector<string> fileNames){
+void AlternatingFramesPlayer::allPlayersGoToFrame(int frame){ //takes in account offset for u
+
+	for (int i = 0;i < players.size(); i++){
+		goToFrameOffset(i, frame);
+	}
+}
+
+void AlternatingFramesPlayer::setup(vector<string> fileNames, vector<int> offs){
 
 	players.clear();
+	offsets.clear();
 	
 	for(int i = 0; i < fileNames.size(); i++){
 
@@ -81,8 +90,9 @@ void AlternatingFramesPlayer::setup(vector<string> fileNames){
 			cout << "movie clip " << fileNames[i] <<  " has " << p->getTotalNumFrames() << " frames, and a duration of " << ofToString(p->getDuration()) << endl;
 			p->setSynchronousSeeking(false);
 			p->setPaused(true);
-			p->firstFrame();
+			p->setFrame(offs[i]);
 			players.push_back(p);
+			offsets.push_back(offs[i]);
 			if (i == 0){
 				ofSetWindowShape(p->getWidth(), p->getHeight());
 				videoFrameDuration = p->getDuration() / p->getTotalNumFrames();
@@ -116,10 +126,15 @@ void AlternatingFramesPlayer::setup(vector<string> fileNames){
 	prevTime = 0.0f;
 	currentFrameDuration = 0.0f;
 	timeOverflow = 0.0f;
+}
 
+void AlternatingFramesPlayer::goToFrameOffset(int playerID, int off){
+	players[playerID]->setFrame( off + offsets[playerID] );
 }
 
 void AlternatingFramesPlayer::update(){
+
+	OFX_REMOTEUI_SERVER_UPDATE(0.016666);
 
 	if (autoAdvance){
 		float t = ofGetElapsedTimef();
@@ -134,14 +149,11 @@ void AlternatingFramesPlayer::update(){
 		}
 		prevTime = t;
 	}
-
-	OFX_REMOTEUI_SERVER_UPDATE(0.016666);
-	
 	
 	bool didEnd = false;
 	for (int i = 0;i < players.size(); i++){
 		players[i]->update();
-		if (players[i]->getIsMovieDone()){
+		if (players[i]->getCurrentFrame() == players[i]->getTotalNumFrames()){
 			cout << "video " << ofToString(i) << "ended" << endl;
 			didEnd = true;
 		}
@@ -153,7 +165,8 @@ void AlternatingFramesPlayer::update(){
 			ofExit(0);
 		}else{
 			for (int i = 0;i < players.size(); i++){
-				players[i]->firstFrame();
+				//players[i]->firstFrame();
+				goToFrameOffset(i, 0);
 			}
 			totalFrames = 0;
 		}
@@ -217,12 +230,19 @@ void AlternatingFramesPlayer::draw(){
 
 	if(debug){
 		ofSetColor(255, 0, 0);
+
+		string pOffs;
+		for(int i = 0; i < players.size(); i++){
+			pOffs += "\nplayer " + ofToString(i) + ": " + ofToString(players[i]->getCurrentFrame());
+		}
+
 		ofDrawBitmapStringHighlight("totalFrames: " + ofToString(totalFrames) + "\n" +
 									"player: " + ofToString(player) + "\n" +
 									"segment: " + ofToString(segment) + "\n" +
 									"overlapping: " + ofToString(overlapping) + "\n" +
 									"overlap: " + ofToString(overlap) + "\n" +
-									"direction: " + ofToString(direction) + "\n",
+									"direction: " + ofToString(direction) + "\n" +
+									pOffs,
 									20,
 									20);
 	}

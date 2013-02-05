@@ -1,3 +1,6 @@
 <video>cam1.mov</video>
+<offset>4</offset>
 <video>cam2.mov</video>
+<offset>2</offset>
 <video>cam3.mov</video>
+<offset>0</offset>

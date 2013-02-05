@@ -36,7 +36,12 @@ void testApp::draw(){
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 
-	p.advance();
+	if(key == ' '){
+		p.allPlayersGoToFrame(0);
+	}else{
+		p.advance();
+	}
+
 }
 
 //--------------------------------------------------------------

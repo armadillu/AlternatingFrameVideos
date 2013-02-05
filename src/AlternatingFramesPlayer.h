@@ -22,7 +22,7 @@ public:
 	AlternatingFramesPlayer();
 	~AlternatingFramesPlayer();
 
-	void setup(vector<string> fileNames);
+	void setup(vector<string> fileNames, vector<int> offsets);
 
 	void update();
 	void advance();
@@ -32,6 +32,8 @@ public:
 	void setCrossFadeDuration(int frames);
 	void setExitOnEnd(bool exit){ exitOnEnd = exit;};
 
+	void allPlayersGoToFrame(int frame); //takes in account offset for u
+
 	void saveSettings();
 	void loadSettings();
 
@@ -39,8 +41,10 @@ public:
 
 private:
 	void nextPlayer();
+	void goToFrameOffset(int player, int offset);
 
 	vector<ofQTKitPlayer*> players;
+	vector<int> offsets;
 
 	int segmentFrames;
 	int overlapFrames;
@@ -61,6 +65,9 @@ private:
 	float currentFrameDuration;
 	float prevTime;
 	float timeOverflow;
+
+	//ui action
+	
 
 };
 
