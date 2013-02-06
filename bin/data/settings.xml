@@ -1,5 +1,5 @@
-<segmentFrames>2</segmentFrames>
+<segmentFrames>6</segmentFrames>
 <overlapFrames>0</overlapFrames>
 <exitOnEnd>0</exitOnEnd>
-<autoAdvance>1</autoAdvance>
-<debug>1</debug>
+<autoAdvance>0</autoAdvance>
+<debug>0</debug>

@@ -142,7 +142,7 @@ void AlternatingFramesPlayer::update(){
 		//cout << ofToString(thisFrame) << endl;
 		currentFrameDuration += thisFrame;
 		if (currentFrameDuration > videoFrameDuration + timeOverflow){
-			cout << "advance! currentFrameDuration :" << ofToString(currentFrameDuration) << "  frameDuration: " << ofToString(videoFrameDuration) << endl;
+			//cout << "advance! currentFrameDuration :" << ofToString(currentFrameDuration) << "  frameDuration: " << ofToString(videoFrameDuration) << endl;
 			advance();
 			timeOverflow = 0.8 * timeOverflow + 0.2 * ( videoFrameDuration - currentFrameDuration );
 			currentFrameDuration = 0.0f;
